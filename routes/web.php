@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\FamilyController;
+use App\Http\Controllers\FamilyMemberController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -12,7 +13,13 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+Route::get('/', [FamilyController::class, 'details'])->name('details');
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/family/create', [FamilyController::class, 'create'])->name('family.create');
+Route::post('/family', [FamilyController::class, 'store']);
+Route::get('/family/details', [FamilyController::class, 'details'])->name('family.details');
+
+Route::get('/family/{family_id}/member/', [FamilyMemberController::class, 'show'])->name('family.member.show');
+
+Route::get('/family/{family_id}/create', [FamilyMemberController::class, 'create'])->name('family.member.create');
+Route::post('/family/{family_id}/members', [FamilyMemberController::class, 'store'])->name('family.members.store');
