@@ -69,13 +69,14 @@
                             <div class="form-group">
                                 <label for="state">State:</label>
 
-                                <select id="state" class="form-control @error('state') is-invalid @enderror">
+                                <select id="state" name="state" class="form-control @error('state') is-invalid @enderror">
                                     <option value="">Select State</option>
                                     @foreach ($states as $state)
-                                        <option value="{{ $state['state'] }}">{{ $state['state'] }}</option>
+                                        <option value="{{ $state['state'] }}" {{ old('state') == $state['state'] ? 'selected' : '' }}>
+                                            {{ $state['state'] }}
+                                        </option>
                                     @endforeach
                                 </select>
-
                                 @error('state')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
@@ -84,7 +85,7 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="city">City:</label>
-                                <select id="city" class="form-control @error('city') is-invalid @enderror">
+                                <select id="city" name="city" class="form-control @error('city') is-invalid @enderror">
                                     <option value="">Select city</option>
                                 </select>
                                 @error('city')
@@ -196,24 +197,39 @@
             maritalStatusRadios.change(toggleWeddingDateField);
         });
 
-          // Fetch districts for the selected state
-          document.getElementById('state').addEventListener('change', function () {
-            var selectedState = this.value;
-            var states = @json($states);
-            var districts = {};
-            states.forEach(function(state) {
-                districts[state.state] = state.districts;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch districts for the selected state
+            document.getElementById('state').addEventListener('change', function () {
+                var selectedState = this.value;
+                var states = @json($states);
+                var districts = {};
+                states.forEach(function(state) {
+                    districts[state.state] = state.districts;
+                });
+
+                var districtDropdown = document.getElementById('city');
+                districtDropdown.innerHTML = '<option value="">Select city</option>';
+
+                districts[selectedState].forEach(function(district) {
+                    var option = document.createElement('option');
+                    option.text = district;
+                    option.value = district;
+                    districtDropdown.add(option);
+                });
+
+                // Retain old selected value in city dropdown
+                var oldCity = @json(old('city'));
+                if (oldCity) {
+                    districtDropdown.value = oldCity;
+                }
             });
 
-            var districtDropdown = document.getElementById('city');
-            districtDropdown.innerHTML = '<option value="">Select city</option>';
-            
-            districts[selectedState].forEach(function(district) {
-                var option = document.createElement('option');
-                option.text = district;
-                option.value = district;
-                districtDropdown.add(option);
-            });
+            // Trigger change event to populate city dropdown with old selected value
+            var selectedState = document.getElementById('state').value;
+            if (selectedState) {
+                document.getElementById('state').dispatchEvent(new Event('change'));
+            }
         });
+
     </script>
 @endsection
